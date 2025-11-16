@@ -1,0 +1,36 @@
+[Unit]
+Description=Secure API Gateway Docker Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=deploy
+Group=docker
+
+# Stop any existing container
+ExecStartPre=-/usr/bin/docker stop gateway
+ExecStartPre=-/usr/bin/docker rm gateway
+
+# Start the container
+ExecStart=/usr/bin/docker run --rm \
+    --name gateway \
+    -p 3000:3000 \
+    -e NODE_ENV=production \
+    -e JWT_SECRET_FILE=/etc/gateway/jwt-secret \
+    -e PORT=3000 \
+    -e LOG_LEVEL=info \
+    -v /etc/gateway:/etc/gateway:ro \
+    ghcr.io/your-org/secure-api-gateway:latest
+
+# Stop the container on service stop
+ExecStop=/usr/bin/docker stop gateway
+
+# Health check
+HealthCheckIntervalSec=30
+HealthCheckCommand=/usr/bin/curl -f http://localhost:3000/health || exit 1
+
+[Install]
+WantedBy=multi-user.target

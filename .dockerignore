@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+docs/
+
+# CI/CD
+.github/
+Jenkinsfile
+.gitlab-ci.yml
+
+# Testing
+coverage/
+.nyc_output/
+*.test.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Kubernetes
+k8s/
+
+# Scripts
+scripts/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml

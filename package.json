@@ -1,0 +1,42 @@
+{
+  "name": "secure-api-gateway",
+  "version": "1.0.0",
+  "description": "Secure API Gateway with JWT authentication, RBAC, and security hardening",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "test": "node --test src/**/*.test.js",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "audit": "npm audit --audit-level=moderate",
+    "security-check": "npm audit && snyk test || true"
+  },
+  "keywords": [
+    "api-gateway",
+    "jwt",
+    "rbac",
+    "security"
+  ],
+  "author": "Ganesh N",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5",
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "snyk": "^1.1276.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
