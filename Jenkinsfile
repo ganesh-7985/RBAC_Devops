@@ -80,9 +80,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image..."
+                    echo "Building Docker image for linux/amd64 platform..."
                     sh """
                         docker build \
+                            --platform linux/amd64 \
                             --tag ${IMAGE_NAME}:${IMAGE_TAG} \
                             --tag ${IMAGE_NAME}:latest \
                             --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
