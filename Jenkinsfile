@@ -144,38 +144,44 @@ pipeline {
             steps {
                 script {
                     echo "Deploying to Staging VM via SSH..."
-                    sshagent(credentials: [SSH_CREDENTIALS_ID]) {
-                        sh """
-                            # Deploy to staging VM
-                            ssh -o StrictHostKeyChecking=no ${STAGING_VM_HOST} '
-                                # Stop and remove old container
-                                docker stop ${CONTAINER_NAME} || true
-                                docker rm ${CONTAINER_NAME} || true
-                                
-                                # Pull new image
-                                echo "${REGISTRY_CREDENTIALS_PSW}" | docker login ${REGISTRY} -u ${REGISTRY_CREDENTIALS_USR} --password-stdin
-                                docker pull ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker logout ${REGISTRY}
-                                
-                                # Run new container
-                                docker run -d \
-                                    --name ${CONTAINER_NAME} \
-                                    --restart unless-stopped \
-                                    -p ${CONTAINER_PORT}:${CONTAINER_PORT} \
-                                    -e NODE_ENV=production \
-                                    -e JWT_SECRET=\$(cat /etc/gateway/jwt-secret) \
-                                    -e PORT=${CONTAINER_PORT} \
-                                    -e LOG_LEVEL=info \
-                                    ${IMAGE_NAME}:${IMAGE_TAG}
-                                
-                                # Verify container is running
-                                docker ps | grep ${CONTAINER_NAME}
-                                
-                                # Wait for health check
-                                sleep 10
-                                curl -f http://localhost:${CONTAINER_PORT}/health || exit 1
-                            '
-                        """
+                    withCredentials([usernamePassword(
+                        credentialsId: REGISTRY_CREDENTIALS,
+                        usernameVariable: 'REGISTRY_USER',
+                        passwordVariable: 'REGISTRY_PASS'
+                    )]) {
+                        sshagent(credentials: [SSH_CREDENTIALS_ID]) {
+                            sh """
+                                # Deploy to staging VM
+                                ssh -o StrictHostKeyChecking=no ${STAGING_VM_HOST} '
+                                    # Stop and remove old container
+                                    docker stop ${CONTAINER_NAME} || true
+                                    docker rm ${CONTAINER_NAME} || true
+                                    
+                                    # Pull new image
+                                    echo "${REGISTRY_PASS}" | docker login ${REGISTRY} -u ${REGISTRY_USER} --password-stdin
+                                    docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+                                    docker logout ${REGISTRY}
+                                    
+                                    # Run new container
+                                    docker run -d \
+                                        --name ${CONTAINER_NAME} \
+                                        --restart unless-stopped \
+                                        -p ${CONTAINER_PORT}:${CONTAINER_PORT} \
+                                        -e NODE_ENV=production \
+                                        -e JWT_SECRET=\$(cat /etc/gateway/jwt-secret) \
+                                        -e PORT=${CONTAINER_PORT} \
+                                        -e LOG_LEVEL=info \
+                                        ${IMAGE_NAME}:${IMAGE_TAG}
+                                    
+                                    # Verify container is running
+                                    docker ps | grep ${CONTAINER_NAME}
+                                    
+                                    # Wait for health check
+                                    sleep 10
+                                    curl -f http://localhost:${CONTAINER_PORT}/health || exit 1
+                                '
+                            """
+                        }
                     }
                 }
             }
@@ -218,36 +224,42 @@ pipeline {
             steps {
                 script {
                     echo "Deploying to Production VM via SSH..."
-                    sshagent(credentials: [SSH_CREDENTIALS_ID]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${PROD_VM_HOST} '
-                                docker stop ${CONTAINER_NAME} || true
-                                docker rm ${CONTAINER_NAME} || true
-                                
-                                # Pull new image
-                                echo "${REGISTRY_CREDENTIALS_PSW}" | docker login ${REGISTRY} -u ${REGISTRY_CREDENTIALS_USR} --password-stdin
-                                docker pull ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker logout ${REGISTRY}
-                                
-                                # Run new container
-                                docker run -d \
-                                    --name ${CONTAINER_NAME} \
-                                    --restart unless-stopped \
-                                    -p ${CONTAINER_PORT}:${CONTAINER_PORT} \
-                                    -e NODE_ENV=production \
-                                    -e JWT_SECRET=\$(cat /etc/gateway/jwt-secret) \
-                                    -e PORT=${CONTAINER_PORT} \
-                                    -e LOG_LEVEL=warn \
-                                    ${IMAGE_NAME}:${IMAGE_TAG}
-                                
-                                # Verify container is running
-                                docker ps | grep ${CONTAINER_NAME}
-                                
-                                # Wait for health check
-                                sleep 10
-                                curl -f http://localhost:${CONTAINER_PORT}/health || exit 1
-                            '
-                        """
+                    withCredentials([usernamePassword(
+                        credentialsId: REGISTRY_CREDENTIALS,
+                        usernameVariable: 'REGISTRY_USER',
+                        passwordVariable: 'REGISTRY_PASS'
+                    )]) {
+                        sshagent(credentials: [SSH_CREDENTIALS_ID]) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${PROD_VM_HOST} '
+                                    docker stop ${CONTAINER_NAME} || true
+                                    docker rm ${CONTAINER_NAME} || true
+                                    
+                                    # Pull new image
+                                    echo "${REGISTRY_PASS}" | docker login ${REGISTRY} -u ${REGISTRY_USER} --password-stdin
+                                    docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+                                    docker logout ${REGISTRY}
+                                    
+                                    # Run new container
+                                    docker run -d \
+                                        --name ${CONTAINER_NAME} \
+                                        --restart unless-stopped \
+                                        -p ${CONTAINER_PORT}:${CONTAINER_PORT} \
+                                        -e NODE_ENV=production \
+                                        -e JWT_SECRET=\$(cat /etc/gateway/jwt-secret) \
+                                        -e PORT=${CONTAINER_PORT} \
+                                        -e LOG_LEVEL=warn \
+                                        ${IMAGE_NAME}:${IMAGE_TAG}
+                                    
+                                    # Verify container is running
+                                    docker ps | grep ${CONTAINER_NAME}
+                                    
+                                    # Wait for health check
+                                    sleep 10
+                                    curl -f http://localhost:${CONTAINER_PORT}/health || exit 1
+                                '
+                            """
+                        }
                     }
                 }
             }
