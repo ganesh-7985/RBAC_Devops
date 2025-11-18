@@ -280,13 +280,9 @@ pipeline {
         }
         failure {
             echo "Pipeline failed!"
-            sh """
-                docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true
-            """
         }
         always {
-            echo "Cleaning up workspace..."
-            cleanWs()
+            echo "Cleaning up..."
         }
     }
 }
