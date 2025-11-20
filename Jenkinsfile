@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Application
         APP_NAME = 'secure-api-gateway'
         
         // Docker Registry (configure in Jenkins)
@@ -20,11 +19,10 @@ pipeline {
         CONTAINER_NAME = 'gateway'
         CONTAINER_PORT = '3000'
         
-        // Security
+        
         TRIVY_SEVERITY = 'CRITICAL,HIGH'
         NPM_AUDIT_LEVEL = 'moderate'
         
-        // Node environment
         NODE_ENV = 'production'
     }
 
