@@ -13,8 +13,8 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}-${GIT_COMMIT.take(7)}"
         
         // VM/SSH Configuration
-        STAGING_VM_HOST = 'deploy@18.190.253.152'
-        PROD_VM_HOST = 'deploy@3.133.157.227'
+        STAGING_VM_HOST = 'deploy@18.227.140.87'
+        PROD_VM_HOST = 'deploy@18.191.171.107'
         SSH_CREDENTIALS_ID = 'vm-ssh-key'
         CONTAINER_NAME = 'gateway'
         CONTAINER_PORT = '3000'
